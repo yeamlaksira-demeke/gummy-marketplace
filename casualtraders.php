@@ -682,64 +682,95 @@
 </div>
 
 <script>
+// Open or close the navigation menu and categories menu on mobile screens
 function toggleBoth() {
-    document.getElementById('navLinks').classList.toggle('active');
-    document.getElementById('categories').classList.toggle('active');
+    var navLinks = document.getElementById('navLinks');
+    var categories = document.getElementById('categories');
+    
+    if (navLinks) {
+        navLinks.classList.toggle('active');
+    }
+    if (categories) {
+        categories.classList.toggle('active');
+    }
 }
 
+// Close the menus automatically if the user clicks anywhere outside of them
 document.addEventListener('click', function(event) {
     var navLinks = document.getElementById('navLinks');
     var categories = document.getElementById('categories');
     var menuToggle = document.querySelector('.menu-toggle');
-
-    if ((navLinks.classList.contains('active') || categories.classList.contains('active')) &&
-        !navLinks.contains(event.target) &&
-        !categories.contains(event.target) &&
-        !menuToggle.contains(event.target)) {
-
-        navLinks.classList.remove('active');
-        categories.classList.remove('active');
+    
+    var isNavActive = navLinks && navLinks.classList.contains('active');
+    var isCatActive = categories && categories.classList.contains('active');
+    
+    if ((isNavActive || isCatActive) && menuToggle) {
+        if (!navLinks.contains(event.target) && (!categories || !categories.contains(event.target)) && !menuToggle.contains(event.target)) {
+            if (navLinks) {
+                navLinks.classList.remove('active');
+            }
+            if (categories) {
+                categories.classList.remove('active');
+            }
+        }
     }
 });
 
+// Filter the marketplace items immediately when a category link is clicked
 function filterCategory(category) {
-    // Update active category
-    document.querySelectorAll('.categories a').forEach(link => {
+    // Remove the highlight color from all category links
+    document.querySelectorAll('.categories a').forEach(function(link) {
         link.classList.remove('active');
     });
-    event.target.classList.add('active');
     
-    // Filter cards
-    const cards = document.querySelectorAll('.listing-card');
-    cards.forEach(card => {
-        if (category === 'all' || card.dataset.category === category) {
+    // Highlight the specific link that the user just clicked
+    if (event && event.currentTarget) {
+        event.currentTarget.classList.add('active');
+    }
+
+    // Show matching items and hide non-matching items without reloading the page
+    var cards = document.querySelectorAll('.listing-card');
+    cards.forEach(function(card) {
+        var cardCategory = card.getAttribute('data-category') || card.dataset.category || '';
+        if (category === 'all' || cardCategory.toLowerCase() === category.toLowerCase()) {
             card.style.display = 'block';
         } else {
             card.style.display = 'none';
         }
     });
-    
-    // Close mobile menu
-    document.getElementById('categories').classList.remove('active');
+
+    // Collapse the mobile category menu after the user makes a choice
+    var categories = document.getElementById('categories');
+    if (categories) {
+        categories.classList.remove('active');
+    }
 }
 
-// Search functionality
-document.getElementById('searchBar').addEventListener('input', function(e) {
-    const searchTerm = e.target.value.toLowerCase();
-    const cards = document.querySelectorAll('.listing-card');
-    
-    cards.forEach(card => {
-        const title = card.querySelector('.listing-title').textContent.toLowerCase();
-        const description = card.querySelector('.listing-description').textContent.toLowerCase();
+// Watch the search box and filter items live as the user types
+var searchBar = document.getElementById('searchBar');
+if (searchBar) {
+    searchBar.addEventListener('input', function(e) {
+        var searchTerm = e.target.value.toLowerCase();
+        var cards = document.querySelectorAll('.listing-card');
         
-        if (title.includes(searchTerm) || description.includes(searchTerm)) {
-            card.style.display = 'block';
-        } else {
-            card.style.display = 'none';
-        }
+        cards.forEach(function(card) {
+            var titleEl = card.querySelector('.listing-title');
+            var descEl = card.querySelector('.listing-description');
+            
+            var title = titleEl ? titleEl.textContent.toLowerCase() : '';
+            var description = descEl ? descEl.textContent.toLowerCase() : '';
+            
+            // Show the card if the search term matches the title or description text
+            if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
     });
-});
+}
 </script>
+
 
 </body>
 </html>
