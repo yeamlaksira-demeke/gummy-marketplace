@@ -937,68 +937,69 @@
 </div>
 
 <script>
-
-
-function toggleMenu() {
-    var navLinks = document.getElementById('navLinks');
-    navLinks.classList.toggle('active');
-}
-
-document.addEventListener('click', function(event) {
-    var navLinks = document.getElementById('navLinks');
-    var menuToggle = document.querySelector('.menu-toggle');
-    if (navLinks.classList.contains('active') && 
-        !navLinks.contains(event.target) && 
-        !menuToggle.contains(event.target)) {
-        navLinks.classList.remove('active');
-    }
-});
-
-
-//  SEARCH FUNCTIONALITY
-const searchBar = document.getElementById('searchBar');
-if (searchBar) {
-    searchBar.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            window.location.href = 'alllistings.php?search=' + encodeURIComponent(this.value);
-        }
-    });
-
-    searchBar.addEventListener('input', function(e) {
-        const searchTerm = e.target.value.toLowerCase();
-        const cards = document.querySelectorAll('.listing-card');
-        cards.forEach(card => {
-            const title = card.innerText.toLowerCase();
-            card.style.display = title.includes(searchTerm) ? 'block' : 'none';
-        });
-    });
-}
-
-//  NAVIGATION TOGGLE
+// Open or close the mobile navigation menu
 window.toggleMenu = function() {
-    const navLinks = document.getElementById('navLinks');
+    var navLinks = document.getElementById('navLinks');
     if (navLinks) {
         navLinks.classList.toggle('active');
     }
 };
 
-//  CATEGORY FILTERING
+// Close the menu if the user clicks anywhere outside of the menu area
+document.addEventListener('click', function(event) {
+    var navLinks = document.getElementById('navLinks');
+    var menuToggle = document.querySelector('.menu-toggle');
+    
+    if (navLinks && menuToggle && navLinks.classList.contains('active')) {
+        if (!navLinks.contains(event.target) && !menuToggle.contains(event.target)) {
+            navLinks.classList.remove('active');
+        }
+    }
+});
+
+// Manage the search box inputs
+var searchBar = document.getElementById('searchBar');
+if (searchBar) {
+    // Redirect to the main homepage if the user presses the Enter key
+    searchBar.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            window.location.href = 'index.php?search=' + encodeURIComponent(this.value);
+        }
+    });
+
+    // Filter items instantly on the page as the user types letters
+    searchBar.addEventListener('input', function(e) {
+        var searchTerm = e.target.value.toLowerCase();
+        var cards = document.querySelectorAll('.listing-card');
+        
+        cards.forEach(function(card) {
+            var cardText = card.innerText.toLowerCase();
+            if (cardText.includes(searchTerm)) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+}
+
+// Filter the marketplace items when a category button is clicked
 window.filterCategory = function(category) {
-    console.log("Filtering by:", category);
+    // Remove the highlight color from all category links
+    var links = document.querySelectorAll('.categories a');
+    links.forEach(function(link) {
+        link.classList.remove('active');
+    });
     
-    // Update active UI state
-    const links = document.querySelectorAll('.categories a');
-    links.forEach(link => link.classList.remove('active'));
-    
-    // Add active class to clicked element
+    // Highlight the specific link that the user clicked
     if (event && event.currentTarget) {
         event.currentTarget.classList.add('active');
     }
-
-    // Actual filtering logic for listing cards
-    const cards = document.querySelectorAll('.listing-card');
-    cards.forEach(card => {
-        const cardCategory = card.getAttribute('data-category'); 
+    
+    // Show matching products and hide the rest without reloading the page
+    var cards = document.querySelectorAll('.listing-card');
+    cards.forEach(function(card) {
+        var cardCategory = card.getAttribute('data-category');
         if (category === 'all' || cardCategory === category) {
             card.style.display = 'block';
         } else {
@@ -1006,21 +1007,8 @@ window.filterCategory = function(category) {
         }
     });
 };
-
-//  CLICK OUTSIDE TO CLOSE
-document.addEventListener('click', function(event) {
-    const navLinks = document.getElementById('navLinks');
-    const menuToggle = document.querySelector('.menu-toggle');
-
-    // If menu is open and user clicks outside of it and the toggle button
-    if (navLinks && navLinks.classList.contains('active')) {
-        if (!navLinks.contains(event.target) && !menuToggle.contains(event.target)) {
-            navLinks.classList.remove('active');
-        }
-    }
-});
-
 </script>
+
 
 </body>
 </html>
